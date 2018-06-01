@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {
-  AsyncStorage
+  AsyncStorage,
+  AppState
 } from 'react-native';
 import {
   GiftedChat
@@ -8,6 +9,11 @@ import {
 import ActionCable from 'react-native-actioncable';
 import {Actions} from "react-native-router-flux";
 import axios from 'axios';
+
+import { Fcm } from "../services";
+import { IP_SERVER } from "../constants";
+
+// Fcm.registerKilledAppListener();
 
 export default class NewChat extends Component {
   constructor(props) {
@@ -19,7 +25,7 @@ export default class NewChat extends Component {
       client: '',
       access_token: '',
       refreshing: true,
-      nextPage: 0
+      nextPage: 0,
     };
   }
 
@@ -41,6 +47,9 @@ export default class NewChat extends Component {
 
   componentDidMount() {
     this.createSocket();
+    Fcm.resetBadge();
+    Fcm.addEventStateListener();
+    Fcm.initNotification();
   }
 
   render() {
@@ -105,7 +114,7 @@ export default class NewChat extends Component {
 
   // My function
   fetchMessages(limit, nextPage) {
-    axios.get(`http://10.0.2.2:3001/api/v1/chat_messages?limit=${limit}&nextPage=${nextPage}`)
+    axios.get(`http://${IP_SERVER}/api/v1/chat_messages?limit=${limit}&nextPage=${nextPage}`)
       .then(res => {
         data_messages = res.data.chat_messages;
         this.setState(prevState => ({
@@ -134,7 +143,7 @@ export default class NewChat extends Component {
   }
 
   logout(){
-    axios.delete(`http://10.0.2.2:3001/auth/logout`,
+    axios.delete(`http://${IP_SERVER}/auth/logout`,
       {
         headers: {
           uid: this.state.uid,
@@ -160,7 +169,7 @@ export default class NewChat extends Component {
   }
 
   createSocket() {
-    let cable = ActionCable.createConsumer('ws://10.0.2.2:3001/cable');
+    let cable = ActionCable.createConsumer(`ws://${IP_SERVER}/cable`);
 
     this.chats = cable.subscriptions.create(
       {

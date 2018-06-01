@@ -52,3 +52,5 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # Simple, multi-client and secure token-based authentication for Rails
 gem 'devise_token_auth'
+gem 'fcm'
+gem 'config'
