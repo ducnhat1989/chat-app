@@ -10,9 +10,7 @@ import {
   StyleSheet,
   Text,
   View,
-  AsyncStorage,
 } from 'react-native';
-import Storage from 'react-native-storage';
 import {
   Router,
   Scene,
@@ -23,37 +21,18 @@ import Login from './components/Login';
 import Chat from './components/Chat';
 import NewChat from './components/NewChat';
 
+import { Storage, Fcm } from "./services";
+
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
     'Cmd+D or shake for dev menu',
   android: 'Double tap R on your keyboard to reload,\n' +
     'Shake or press menu button for dev menu',
 });
+console.disableYellowBox = true;
 
-var storage = new Storage({
-  // maximum capacity, default 1000
-  size: 1000,
-
-  // Use AsyncStorage for RN, or window.localStorage for web.
-  // If not set, data would be lost after reload.
-  storageBackend: AsyncStorage,
-
-  // expire time, default 1 day(1000 * 3600 * 24 milliseconds).
-  // can be null, which means never expire.
-  defaultExpires: 1000 * 3600 * 24,
-
-  // cache data in the memory. default is true.
-  enableCache: true,
-
-  // if data was not found in storage or expired,
-  // the corresponding sync method will be invoked and return
-  // the latest data.
-  sync : {
-    // we'll talk about the details later.
-  }
-});
-
-global.storage = storage;
+Storage.init();
+Fcm.saveTokenDevice();
 
 class HomeScreen extends Component {
   render() {
@@ -85,7 +64,6 @@ export default class App extends Component {
             title='ChatRoom'
             rightTitle="LogOut"
           />
-
         </Scene>
       </Router>
     );

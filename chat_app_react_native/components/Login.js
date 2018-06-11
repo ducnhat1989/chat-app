@@ -9,6 +9,9 @@ import {
 import {Actions} from 'react-native-router-flux';
 import axios from 'axios';
 
+import { Fcm } from "../services";
+import { IP_SERVER } from "../constants";
+
 export default class Login extends Component {
   constructor(props) {
     super(props);
@@ -16,7 +19,16 @@ export default class Login extends Component {
       id: '',
       password: '',
       isLogin: false,
+      device: {}
     };
+  }
+
+  componentWillMount() {
+    storage.load({
+      key: 'device'
+    }).then(ret => {
+      this.setState({device: ret});
+    })
   }
 
   render() {
@@ -62,13 +74,16 @@ export default class Login extends Component {
   }
 
   authLogin() {
-    axios.post(`http://10.0.2.2:3001/auth/sign_in`, {
+    axios.post(`http://${IP_SERVER}/auth/sign_in`, {
       email: this.state.id,
-      password: this.state.password
+      password: this.state.password,
+      device_type: this.state.device.type,
+      device_token: this.state.device.token
       })
       .then(res => {
         this.setState({isLogin: true});
         this.sysnStorage(res);
+        Fcm.resetBadge();
         this.redirect_to_chat();
       })
       .catch(err => {
