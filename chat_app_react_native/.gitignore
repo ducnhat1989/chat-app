@@ -57,3 +57,6 @@ buck-out/
 
 # Android google service key
 android/app/google-services.json
+
+# iOS google service key
+ios/chat_app_react_native/GoogleService-Info.plist
